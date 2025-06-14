@@ -12,8 +12,14 @@ public class TodoContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Todo>().HasKey(t => t.Id);
-        modelBuilder.Entity<Todo>().Property(t => t.Title).IsRequired().HasMaxLength(200);
-        modelBuilder.Entity<Todo>().Property(t => t.Description).HasMaxLength(1000);
+        modelBuilder.Entity<Todo>()
+            .HasKey(t => t.Id);
+        modelBuilder.Entity<Todo>()
+            .Property(t => t.Title)
+            .IsRequired()
+            .HasMaxLength(200);
+        modelBuilder.Entity<Todo>()
+            .Property(t => t.Description)
+            .HasMaxLength(1000);
     }
 }

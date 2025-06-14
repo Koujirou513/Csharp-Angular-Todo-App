@@ -50,7 +50,21 @@ public class TodosController : ControllerBase
         }
 
         _context.Entry(todo).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TodoExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
 
         return NoContent();
     }
@@ -68,5 +82,10 @@ public class TodosController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private bool TodoExists(int id)
+    {
+        return _context.Todos.Any(e => e.Id == id);
     }
 }
