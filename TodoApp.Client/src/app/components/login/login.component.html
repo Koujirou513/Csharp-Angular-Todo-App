@@ -1,0 +1,95 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h1>{{ isLoginMode ? 'ログイン' : '新規登録' }}</h1>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Login Form -->
+    <form *ngIf="isLoginMode" (ngSubmit)="onLogin()" class="auth-form">
+      <div class="form-group">
+        <label for="username">ユーザー名</label>
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="loginRequest.username"
+          name="username"
+          class="form-control"
+          placeholder="ユーザー名を入力"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">パスワード</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="loginRequest.password"
+          name="password"
+          class="form-control"
+          placeholder="パスワードを入力"
+          required>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isLoading">
+        {{ isLoading ? 'ログイン中...' : 'ログイン' }}
+      </button>
+    </form>
+
+    <!-- Register Form -->
+    <form *ngIf="!isLoginMode" (ngSubmit)="onRegister()" class="auth-form">
+      <div class="form-group">
+        <label for="reg-username">ユーザー名</label>
+        <input
+          type="text"
+          id="reg-username"
+          [(ngModel)]="registerRequest.username"
+          name="regUsername"
+          class="form-control"
+          placeholder="ユーザー名を入力（3文字以上）"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">メールアドレス</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="registerRequest.email"
+          name="email"
+          class="form-control"
+          placeholder="メールアドレスを入力"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-password">パスワード</label>
+        <input
+          type="password"
+          id="reg-password"
+          [(ngModel)]="registerRequest.password"
+          name="regPassword"
+          class="form-control"
+          placeholder="パスワードを入力（6文字以上）"
+          required>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isLoading">
+        {{ isLoading ? '登録中...' : '新規登録' }}
+      </button>
+    </form>
+
+    <div class="toggle-mode">
+      <button type="button" class="btn btn-link" (click)="toggleMode()">
+        {{ isLoading ? '新規登録はこちら' : 'ログインはこちら' }}
+      </button>
+    </div>
+  </div>
+</div>
