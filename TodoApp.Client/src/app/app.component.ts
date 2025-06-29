@@ -1,90 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TodoService } from './services/todo.service';
-import { Todo } from './models/todo';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
+import { AuthService } from './services/auth.service';
+import { HeaderComponent } from './components/shared/header/header.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterOutlet],
+  imports: [CommonModule, RouterOutlet, HeaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit, OnDestroy {
   title = 'TodoApp';
-  todos: Todo[] = [];
-  newTodo: Todo = {
-    id: 0,
-    title: '',
-    description: '',
-    isCompleted: false,
-    createdAt: new Date()
-  };
+  isAuthenticated = false;
+  private authSubscription!: Subscription;
 
-  constructor(private todoService: TodoService) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-      this.loadTodos();
-  }
-
-  loadTodos(): void {
-    this.todoService.getTodos().subscribe(
-      (todos) => {
-        this.todos = todos;
-      },
-      (error) => {
-        console.error('Error loading todos:', error);
+    // 認証状態の監視
+    this.authSubscription = this.authService.currentUser$.subscribe(
+      user => {
+        this.isAuthenticated = !!user; // ユーザーが存在する場合はtrue
       }
     );
-  }
-
-  addTodo(): void {
-    if (this.newTodo.title.trim()) {
-      this.todoService.createTodo(this.newTodo).subscribe(
-        (todo) => {
-          this.todos.push(todo);
-          this.resetNewTodo();
-        },
-        (error) => {
-          console.error('Error creating todo:', error);
-        }
-      );
+    // アプリ起動時に認証情報をチェック
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login'])
     }
   }
 
-  toggleComplete(todo: Todo): void {
-    todo.isCompleted = !todo.isCompleted;
-    this.todoService.updateTodo(todo.id, todo).subscribe(
-      () => {
-        console.log('Todo updated successfully');
-      },
-      (error) => {
-        console.error('Error updating todo:', error);
-        todo.isCompleted = !todo.isCompleted;
-      }
-    );
-  }
-
-  deleteTodo(id: number): void {
-    this.todoService.deleteTodo(id).subscribe(
-      () => {
-        this.todos = this.todos.filter(todo => todo.id !== id);
-      },
-      (error) => {
-        console.error('Error deleting todo:', error);
-      }
-    );
-  }
-
-  private resetNewTodo(): void {
-    this.newTodo = {
-      id: 0,
-      title: '',
-      description: '',
-      isCompleted: false,
-      createdAt: new Date()
-    };
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 }
